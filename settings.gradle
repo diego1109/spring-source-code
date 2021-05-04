@@ -39,4 +39,5 @@ rootProject.children.each {project ->
 }
 includeFlat 'test-spring-source'
 findProject(':test-spring-source')?.name = 'test-spring-source-code'
+include 'my-spring-aop'
 

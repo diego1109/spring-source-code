@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+group 'org.springframework'
+version '5.2.14.RELEASE'
+
+repositories {
+    mavenCentral()
+}
+
+checkstyle {
+    sourceSets = []
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation(project(":spring-context"))
+    compile fileTree(dir: 'lib',include: '*.jar')
+}
+
+test {
+    useJUnitPlatform()
+}
