@@ -3,18 +3,8 @@ package com.aop.domain;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TestBean {
-	private String testStr = "testStr";
+public interface TestBean {
 
-	public String  getTestStr(){
-		return testStr;
-	}
+	void test();
 
-	public void setTestStr(String testStr) {
-		this.testStr = testStr;
-	}
-
-	public void test(){
-		System.out.println("test");
-	}
 }

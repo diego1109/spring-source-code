@@ -18,4 +18,8 @@ public class User {
 	public int getAge() {
 		return age;
 	}
+
+	public void initAge(){
+		this.age = 200;
+	}
 }

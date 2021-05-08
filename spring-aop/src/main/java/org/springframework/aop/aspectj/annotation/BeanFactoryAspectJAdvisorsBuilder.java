@@ -80,34 +80,56 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
 	 */
+	// 寻找并解析 切面 bean。
 	public List<Advisor> buildAspectJAdvisors() {
+		// aspectBeansNames 中保存的是已经解析的切面的名称。
 		List<String> aspectNames = this.aspectBeanNames;
-
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
 				if (aspectNames == null) {
+					// 用于保存所有解析出来的 Advisors 集合对象。
 					List<Advisor> advisors = new ArrayList<>();
+					// 用于保存所切面名称的集合。
 					aspectNames = new ArrayList<>();
+					/**
+					 *  aop 功能在这里传入的是 Object 对象，表示从容器中获取所有组件的名称，然后遍历所有组件，
+					 *  这个遍历过程是非常消耗性能的，所以 Spring 在这个过程中加入了保存切面信息的缓存。但是事务
+					 *  功能不一样，事务模块的功能是直接去容器中回去 Advisor 类型的，选择范围小，且不消耗性能。
+					 *  所以 Spring 在事务模块中没有加入缓存来保存事务相关的 advisor。
+					 */
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
+					// 遍历从 IOC 容器中拿到的所有 beanName。
 					for (String beanName : beanNames) {
 						if (!isEligibleBean(beanName)) {
 							continue;
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
+						// 通过 beanName 去容器中获取到 class 对象。（能拿到 class对象，bean的全部信息也就都拿到了）
 						Class<?> beanType = this.beanFactory.getType(beanName, false);
 						if (beanType == null) {
 							continue;
 						}
+						// 根据 class 对象判断是不是切面。（有没有被 @Aspect 注解）
 						if (this.advisorFactory.isAspect(beanType)) {
+							// 是切面，
+							// 加到缓存中。
 							aspectNames.add(beanName);
+							// 用 class 对象和 beanName 构建一个 AspectMetadata 对象。
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+								// 构建切面注解的实例工厂
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								// 过去切面中的所有通知。
+								/**
+								 *  思想：都已经拿到 class 对象了，从中可以获取到类中的所有方法，遍历每一个方法，
+								 *  判断方法上有没有 @Before、@After、@Around、等注解。如果有，就为这个方法 new 对应类型的 Advisor()。
+								 */
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
+								// 加入到缓存中。
 								if (this.beanFactory.isSingleton(beanName)) {
 									this.advisorsCache.put(beanName, classAdvisors);
 								}

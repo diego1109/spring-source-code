@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AspectJTest {
 
-	@Pointcut("execution(* com.aop.domain.*.*(..))")
+	@Pointcut("execution(* com.aop.domain..test(..))")
 	public void test(){
 
 	}
@@ -29,14 +29,14 @@ public class AspectJTest {
 
 	@Around("test()")
 	public Object aroundTest(ProceedingJoinPoint p){
-		System.out.println("before 1");
+		System.out.println("around before 1");
 		Object object = null;
 		try{
 			object = p.proceed();
 		}catch (Throwable e){
 			e.printStackTrace();
 		}
-		System.out.println("after 1");
+		System.out.println("around after 1");
 		return object;
 	}
 }

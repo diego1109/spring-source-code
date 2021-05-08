@@ -242,7 +242,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected <T> T doGetBean(
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
-
+		// 转换对应的 beanName
+		// 1. 如果 name 中以 "&" 开头，去掉"&"；
+		// 2. 从 aliasMap 中找 name 对应的 id，如果 bean 没有只指定 id，则使用 name 做 id。
 		String beanName = transformedBeanName(name);
 		Object bean;
 

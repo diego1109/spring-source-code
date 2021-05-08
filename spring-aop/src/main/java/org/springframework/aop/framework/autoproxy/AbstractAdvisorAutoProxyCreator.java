@@ -51,6 +51,7 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyCreator {
 
+	// advisorRetrievalHelper 负责从 beanFactory 中拿 advisor。
 	@Nullable
 	private BeanFactoryAdvisorRetrievalHelper advisorRetrievalHelper;
 
@@ -74,11 +75,14 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	@Nullable
 	protected Object[] getAdvicesAndAdvisorsForBean(
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
-
+		// 为 beanClass 寻找符合条件的增强器（advisors）
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
+		// 如果找不到
 		if (advisors.isEmpty()) {
+			// 返回 null
 			return DO_NOT_PROXY;
 		}
+		// 找到了增强器，以数组格式返回。
 		return advisors.toArray();
 	}
 
@@ -92,13 +96,19 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #sortAdvisors
 	 * @see #extendAdvisors
 	 */
+	// 为 beanClass 寻找所有符合条件的增强器（通知）。
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
+		// 找到所有的 advisors
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		// 在所有的 advisors 中筛选符合 beanClass 使用的 advisor。（通过切点那块的表达式判定有没有切到 beanClass）
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
+		// 向 eligibleAdvisors 中额外再添加一个 ExposeInvocationInterceptor 类型的 advisor。
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {
+			// 如果有多个 advisor，谁先谁后，在这里排序。
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);
 		}
+		//  返回符合条件的 advisor
 		return eligibleAdvisors;
 	}
 
