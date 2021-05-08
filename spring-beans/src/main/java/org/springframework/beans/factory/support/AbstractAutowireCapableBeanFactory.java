@@ -558,11 +558,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 		if (instanceWrapper == null) {
+			// 实例化 bean，封装在 instanceWrapper 中。
+			// 此时 bean 在堆中已经被分配了存储空间，但属性值都是默认的。
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+		// 获取 bean。
 		Object bean = instanceWrapper.getWrappedInstance();
+		// 获取 bean 的 Class 对象。
 		Class<?> beanType = instanceWrapper.getWrappedClass();
 		if (beanType != NullBean.class) {
+			// 如果 Class 对象不为空，赋值给 resolvedTargetType。
 			mbd.resolvedTargetType = beanType;
 		}
 
@@ -570,6 +575,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		synchronized (mbd.postProcessingLock) {
 			if (!mbd.postProcessed) {
 				try {
+					// 调用 MergedBeanDefinitionPostProcessor 类型的 beanPostProcessor，
+					// 执行 postProcessMergedBeanDefinition() 方法修改 beanDefinition。
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}
 				catch (Throwable ex) {
@@ -582,6 +589,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Eagerly cache singletons to be able to resolve circular references
 		// even when triggered by lifecycle interfaces like BeanFactoryAware.
+		// 提前暴露，目的是解决循环依赖。（是单例 && 允许循环依赖 && bean正在创建中）
 		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
 				isSingletonCurrentlyInCreation(beanName));
 		if (earlySingletonExposure) {
@@ -589,14 +597,21 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			// 将 bean 封装在 ObjectFactory 中，缓存到第三级缓存：singletonFactories。
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
 		// Initialize the bean instance.
+		// 初始化 bean。
 		Object exposedObject = bean;
 		try {
+			// 向 bean 中填充属性值，如果有循环起来，就在这里解决。
 			populateBean(beanName, mbd, instanceWrapper);
-			// 在这里执行了 aop，
+			// (1) 执行 Aware 相关的接口方法，如果 bean 实现了对应的接口，那么向bean中设置对应的系统属性。
+			// (2) 执行 beanPostProcessor 的 postProcessBeforeInitialization(..) 方法。
+			// (3) 执行 bean 的初始化方法，如果 bean 实现了 InitializingBean 接口，那么执行 afterPropertiesSet() 方法。
+			// (4) 执行 beanPostProcessor 的 postProcessAfterInitialization(..) 方法。
+			// NOTE: 如果 bean 被 aop 切了，那么执行 (4) 时，会执行 aop 操作，生成 bean 的代理对象并返回。
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -610,7 +625,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (earlySingletonExposure) {
+			// 从缓存中拿 beanName 的 bean，但是只拿到二级缓存。
 			Object earlySingletonReference = getSingleton(beanName, false);
+			// (earlySingletonReference 按理说应该是空，应为 bean 只是保存在了第三级缓存中，上面只拿到二级，当然是空)
 			if (earlySingletonReference != null) {
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
@@ -638,13 +655,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Register bean as disposable.
 		try {
+			// 设置 bean 销毁时执行的方法。
 			registerDisposableBeanIfNecessary(beanName, bean, mbd);
 		}
 		catch (BeanDefinitionValidationException ex) {
 			throw new BeanCreationException(
 					mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
 		}
-
+		// 到此为止，beanName 的 bean 已经是完整的对象了。返回。
 		return exposedObject;
 	}
 
