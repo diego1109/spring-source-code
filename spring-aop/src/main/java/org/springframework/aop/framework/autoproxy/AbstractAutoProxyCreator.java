@@ -297,7 +297,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (bean != null) {
 			// 为给定的 bean 构建缓存 key。
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
+			// 如果 bean 已经生成了代理，那就跳过，不再重复生成。
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+				// 为 bean 创建代理对象并返回。
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
 		}
@@ -337,7 +339,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
 		// 如果 beanName 是有效的，且 beanName 已经被代理了。
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
-			// 此时不需再代理，直接返回 bean。
+			// 此时不需再创建代理，直接返回 bean。
 			return bean;
 		}
 		// 不需要处理
@@ -355,7 +357,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// Create proxy if we have advice.
 		// 如果 bean 有方法被"切"了，为其创建代理。
 
-		// 获取 advices,(切面里的通知就是增强方法，也是拦截器)
+		// 获取 advices,(切面里的通知就是增强方法，也被叫做拦截器)
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		//  判断 specificInterceptors 不为空。
 		if (specificInterceptors != DO_NOT_PROXY) {
@@ -366,6 +368,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			// 保存 cacheKey 的代理。
 			this.proxyTypes.put(cacheKey, proxy.getClass());
+			// 返回创建好的代理对象。
 			return proxy;
 		}
 		// 如果拿不到 advices，表示 cacheKey 不需要增强。（都没被切，增强个毛线）

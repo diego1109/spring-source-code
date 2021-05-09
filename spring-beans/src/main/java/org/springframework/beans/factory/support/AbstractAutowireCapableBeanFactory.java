@@ -1138,7 +1138,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// Make sure bean class is actually resolved at this point.
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
+				// beanName 的 Class 对象是能拿到的。
 				if (targetType != null) {
+					// 这里没有为 bean 创建aop代理，但却把切面信息给解析了。
+					// 如果使用 @EnableAspectJAutoProxy 注解，那就启动了 aop。
+					// AnnotationAwareAspectJAutoProxyCreator 调用 postProcessBeforeInstantiation()方法。
+					// 解析所有切面信息，并将获取到 Advisor 加入缓存。
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					if (bean != null) {
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);

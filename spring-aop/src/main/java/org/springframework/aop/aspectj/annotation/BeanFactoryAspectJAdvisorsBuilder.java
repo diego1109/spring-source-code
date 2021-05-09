@@ -80,7 +80,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
 	 */
-	// 寻找并解析 切面 bean。
+	// 寻找并解析切面 bean。
 	public List<Advisor> buildAspectJAdvisors() {
 		// aspectBeansNames 中保存的是已经解析的切面的名称。
 		List<String> aspectNames = this.aspectBeanNames;
@@ -102,6 +102,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 							this.beanFactory, Object.class, true, false);
 					// 遍历从 IOC 容器中拿到的所有 beanName。
 					for (String beanName : beanNames) {
+						// 判断 beanName 是合法的。
 						if (!isEligibleBean(beanName)) {
 							continue;
 						}
@@ -115,7 +116,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						// 根据 class 对象判断是不是切面。（有没有被 @Aspect 注解）
 						if (this.advisorFactory.isAspect(beanType)) {
 							// 是切面，
-							// 加到缓存中。
+							// beanName 加到缓存中。
 							aspectNames.add(beanName);
 							// 用 class 对象和 beanName 构建一个 AspectMetadata 对象。
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
@@ -123,7 +124,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 								// 构建切面注解的实例工厂
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
-								// 过去切面中的所有通知。
+								// 获取切面中的所有通知。
 								/**
 								 *  思想：都已经拿到 class 对象了，从中可以获取到类中的所有方法，遍历每一个方法，
 								 *  判断方法上有没有 @Before、@After、@Around、等注解。如果有，就为这个方法 new 对应类型的 Advisor()。
