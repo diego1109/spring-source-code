@@ -10,6 +10,6 @@ public class Main {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				AppConfig.class);
 		TestBean bean = (TestBean) context.getBean("testBeanImpl");
-		bean.test();
+		bean.test(6,3);
 	}
 }

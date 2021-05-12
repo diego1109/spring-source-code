@@ -59,12 +59,15 @@ public class AspectJAfterThrowingAdvice extends AbstractAspectJAdvice
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		try {
+			// 先执行下一个拦截器的调用。
 			return mi.proceed();
 		}
 		catch (Throwable ex) {
 			if (shouldInvokeOnThrowing(ex)) {
+				// 当且仅当 mi.proceed() 抛异常时，@AfterThrow 通知才会被执行。
 				invokeAdviceMethod(getJoinPointMatch(), null, ex);
 			}
+			// 并且再次向上抛出异常。
 			throw ex;
 		}
 	}

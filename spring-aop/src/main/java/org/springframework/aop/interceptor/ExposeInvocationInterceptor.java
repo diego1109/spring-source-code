@@ -87,14 +87,18 @@ public final class ExposeInvocationInterceptor implements MethodInterceptor, Pri
 	private ExposeInvocationInterceptor() {
 	}
 
+	// ExposeInvocationInterceptor 拦截器中，这个拦截器没有执行业务代码。
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		// oldInvocation == null
 		MethodInvocation oldInvocation = invocation.get();
+		// 将封装的好的 ReflectiveMethodInvocation 对象赋值到 invocation 中。
 		invocation.set(mi);
 		try {
 			return mi.proceed();
 		}
 		finally {
+			// 清楚 ReflectiveMethodInvocation 对象。
 			invocation.set(oldInvocation);
 		}
 	}

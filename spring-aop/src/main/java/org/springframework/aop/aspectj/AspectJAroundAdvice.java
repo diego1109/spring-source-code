@@ -59,6 +59,7 @@ public class AspectJAroundAdvice extends AbstractAspectJAdvice implements Method
 		return true;
 	}
 
+	// AspectJAroundAdvice 拦截器中。
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		if (!(mi instanceof ProxyMethodInvocation)) {

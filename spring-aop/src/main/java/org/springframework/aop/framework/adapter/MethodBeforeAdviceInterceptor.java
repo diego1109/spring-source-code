@@ -49,10 +49,12 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor, BeforeA
 		this.advice = advice;
 	}
 
-
+	// MethodBeforeAdviceInterceptor 拦截器中。
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		// 执行 @Before 通知。
 		this.advice.before(mi.getMethod(), mi.getArguments(), mi.getThis());
+		// 再执行下一个拦截器的调用
 		return mi.proceed();
 	}
 

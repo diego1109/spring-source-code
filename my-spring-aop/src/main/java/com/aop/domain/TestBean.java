@@ -5,6 +5,6 @@ import org.springframework.stereotype.Component;
 @Component
 public interface TestBean {
 
-	void test();
+	void test(int numberA,int numberB);
 
 }
