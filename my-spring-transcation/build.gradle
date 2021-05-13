@@ -18,8 +18,10 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     implementation group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
     implementation(project(":spring-context"))
+    implementation(project(":spring-aspects"))
+    implementation(project(":spring-tx"))
     implementation(project(":spring-jdbc"))
-
+//    compile fileTree(dir: 'lib',include: '*.jar')
 }
 
 test {

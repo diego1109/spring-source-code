@@ -5,17 +5,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan("com.jdbctemplate")
+@EnableTransactionManagement
 public class JdbcConfig {
 	
 	//  注入 dataSource
 	@Bean
 	public DataSource mysqlDataSource(){
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 		dataSource.setUrl("jdbc:mysql://localhost:3306/test?useSSL=false");
 		dataSource.setUsername("root");
 		dataSource.setPassword("12345");
@@ -25,6 +28,12 @@ public class JdbcConfig {
 	@Bean
 	public JdbcTemplate jdbcTemplate(){
 		return new JdbcTemplate(mysqlDataSource());
+	}
+
+	// 如果要开启事物，还需要注入 dataSourceTransactionManager。
+	@Bean
+	public DataSourceTransactionManager dataSourceTransactionManager(){
+		return new DataSourceTransactionManager(mysqlDataSource());
 	}
 
 }
