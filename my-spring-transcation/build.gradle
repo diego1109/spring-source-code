@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group 'org.springframework'
+version '5.2.14.RELEASE'
+
+repositories {
+    mavenCentral()
+}
+
+checkstyle {
+    sourceSets = []
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
+    implementation(project(":spring-context"))
+    implementation(project(":spring-jdbc"))
+
+}
+
+test {
+    useJUnitPlatform()
+}
