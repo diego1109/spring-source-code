@@ -71,6 +71,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	}
 
 
+	// 获取应用到 bean 的增强器。
 	@Override
 	@Nullable
 	protected Object[] getAdvicesAndAdvisorsForBean(
@@ -82,7 +83,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 			// 返回 null
 			return DO_NOT_PROXY;
 		}
-		// 找到了增强器，以数组格式返回。
+		// 找到了增强器，以数组格式将这些增强器返回。
 		return advisors.toArray();
 	}
 
@@ -96,9 +97,9 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #sortAdvisors
 	 * @see #extendAdvisors
 	 */
-	// 为 beanClass 寻找所有符合条件的增强器（通知）。
+	// 为 beanClass 寻找所有符合条件的增强器。
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
-		// 找到所有的 advisors
+		// 找到所有的 advisors，包括事务的 advisor 和 普通 aop 的 advisor。。
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 		// 在所有的 advisors 中筛选符合 beanClass 使用的 advisor。（通过切点那块的表达式判定有没有切到 beanClass）
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
@@ -130,6 +131,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @return the List of applicable Advisors
 	 * @see ProxyCreationContext#getCurrentProxiedBeanName()
 	 */
+	// 从 candidateAdvisors 筛选那些能使用在 beanClass 上的 advisors。
 	protected List<Advisor> findAdvisorsThatCanApply(
 			List<Advisor> candidateAdvisors, Class<?> beanClass, String beanName) {
 

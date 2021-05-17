@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
  * @see TransactionProxyFactoryBean#setTransactionAttributeSource
  * @see org.springframework.transaction.annotation.AnnotationTransactionAttributeSource
  */
+// 解析 @transactional 注解的属性。得到的结果是 TransactionAttribute。
 public interface TransactionAttributeSource {
 
 	/**

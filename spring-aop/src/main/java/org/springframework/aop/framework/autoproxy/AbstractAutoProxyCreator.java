@@ -335,7 +335,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @param cacheKey the cache key for metadata access
 	 * @return a proxy wrapping the bean, or the raw bean instance as-is
 	 */
-	// 如果 bean 需要被代理，为他创建一个包装对象（其实就是代理对象）。
+	// 如果 bean 需要被代理，为他创建一个代理对象。
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
 		// 如果 beanName 是有效的，且 beanName 已经被代理了。
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {

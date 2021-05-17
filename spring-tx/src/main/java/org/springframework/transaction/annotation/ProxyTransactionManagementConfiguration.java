@@ -39,6 +39,13 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ProxyTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
 
+	/**
+	 *	既然是 aop，那必须要有切面的，普通 aop 的切面（切点和通知）是程序员自己写的。
+	 *  但 事务的切面 spring 已经定义好了。也就是说事务的切点和通知 spring 已经写好了。
+	 *  最后将 切点和通知 封装到 advisor 中就能使用了。
+	 */
+
+	// BeanFactoryTransactionAttributeSourceAdvisor，包括了事务通知、切面、和切点。
 	@Bean(name = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public BeanFactoryTransactionAttributeSourceAdvisor transactionAdvisor(
@@ -55,12 +62,14 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	// 用来解析 @Transactional 注解。并将结果缓存。
 	public TransactionAttributeSource transactionAttributeSource() {
 		return new AnnotationTransactionAttributeSource();
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	// TransactionInterceptor：事务的通知。
 	public TransactionInterceptor transactionInterceptor(TransactionAttributeSource transactionAttributeSource) {
 		TransactionInterceptor interceptor = new TransactionInterceptor();
 		interceptor.setTransactionAttributeSource(transactionAttributeSource);

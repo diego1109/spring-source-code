@@ -73,6 +73,9 @@ public class BeanFactoryAdvisorRetrievalHelper {
 		if (advisorNames == null) {
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the auto-proxy creator apply to them!
+			// 获取从 beanFactory中获取所有的 Advisor.class 类型的 beanName。它的 beanDefinition 存在或者 直接是 bean 都可以。
+			// 因为事务的通知spring已经写好了，直接通过增强器给注进来了，做以直接通过 Advisor.class 类型拿就行了。
+			// 不需要再走普通 aop 那套，先找切面，再找通知，最后为通知 new Advisor()。
 			advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 					this.beanFactory, Advisor.class, true, false);
 			this.cachedAdvisorBeanNames = advisorNames;
@@ -81,16 +84,24 @@ public class BeanFactoryAdvisorRetrievalHelper {
 			return new ArrayList<>();
 		}
 
+		// 保存所有的 advisor bean。
 		List<Advisor> advisors = new ArrayList<>();
+		// 遍历 advisorNames 获取每一个 advisor。
+		// 如果 bean存在直接从单例池中拿，
+		// 如果bean 不存在，通过 beanDefinition 创建一个。
 		for (String name : advisorNames) {
+			// 名字是合法的。
 			if (isEligibleBean(name)) {
+				// 如果正在创建中，那啥也不干，就打个日志。
 				if (this.beanFactory.isCurrentlyInCreation(name)) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Skipping currently created advisor '" + name + "'");
 					}
 				}
 				else {
+					// 如果不处于正在创建中，那么 getBean() 将其获取。单例池中有，直接拿，没有，走 createBean() 创建一个。
 					try {
+						// (先获取)，再将拿到的 advisor 缓存到 advisors 中。
 						advisors.add(this.beanFactory.getBean(name, Advisor.class));
 					}
 					catch (BeanCreationException ex) {
@@ -113,6 +124,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 				}
 			}
 		}
+		// 返回拿到的所有 Advisor。
 		return advisors;
 	}
 

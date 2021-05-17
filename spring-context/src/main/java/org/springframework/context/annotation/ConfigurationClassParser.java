@@ -308,6 +308,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @Import annotations
+		// 处理配置类上的 @Import 注解。
 		processImports(configClass, sourceClass, getImports(sourceClass), filter, true);
 
 		// Process any @ImportResource annotations

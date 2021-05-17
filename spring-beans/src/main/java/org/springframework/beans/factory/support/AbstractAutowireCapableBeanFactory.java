@@ -610,6 +610,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// (1) 执行 Aware 相关的接口方法，如果 bean 实现了对应的接口，那么向bean中设置对应的系统属性。
 			// (2) 执行 beanPostProcessor 的 postProcessBeforeInitialization(..) 方法。
 			// (3) 执行 bean 的初始化方法，如果 bean 实现了 InitializingBean 接口，那么执行 afterPropertiesSet() 方法。
+			// (3.1) 执行 bean 的初始化方法，如果 bean 实现了 init_method()方法，那么执行 init_method() 方法。
 			// (4) 执行 beanPostProcessor 的 postProcessAfterInitialization(..) 方法。
 			// NOTE: 如果 bean 被 aop 切了，那么执行 (4) 时，会执行 aop 操作，生成 bean 的代理对象并返回。
 			exposedObject = initializeBean(beanName, exposedObject, mbd);

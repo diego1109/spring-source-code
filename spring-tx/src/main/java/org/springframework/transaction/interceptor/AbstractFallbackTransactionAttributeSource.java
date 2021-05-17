@@ -95,22 +95,30 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 		}
 
 		// First, see if we have a cached value.
+		// 先看缓存里面有没有 @Transactional 注解的属性。有的话直接返回，不用解析了。
 		Object cacheKey = getCacheKey(method, targetClass);
+		// 获取缓存中保存的属性信息。
 		TransactionAttribute cached = this.attributeCache.get(cacheKey);
 		if (cached != null) {
 			// Value will either be canonical value indicating there is no transaction attribute,
 			// or an actual transaction attribute.
+			// 如果能找到，但属性信息是空，那就表示，该方法上没有事务。。
 			if (cached == NULL_TRANSACTION_ATTRIBUTE) {
 				return null;
 			}
 			else {
+				// 属性信息不为空，那就直接返回注解的属性信息。
 				return cached;
 			}
 		}
 		else {
 			// We need to work it out.
+			// 缓存里没有就需要自己解析了。
+			// 从目标类的方法、目标类、目标类实现的接口的方法、目标类实现的接口上 查@Transactional注解，
+			// 如果有就解析注解的属性，并返回。
 			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
 			// Put it in the cache.
+			// 无论解析到的是不是空，都保存到缓存中。
 			if (txAttr == null) {
 				this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
 			}
@@ -150,21 +158,26 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	@Nullable
 	protected TransactionAttribute computeTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
 		// Don't allow no-public methods as required.
+		// 如果 @Transcational 标注在 非 public 方法上，则不解析，也就是无效。
 		if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
 			return null;
 		}
 
 		// The method may be on an interface, but we need attributes from the target class.
 		// If the target class is null, the method will be unchanged.
+		// method 表示接口中的方法。
+		// specificMethod 表示实现类中的方法。
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 
 		// First try is the method in the target class.
+		// 先检查目标类的方法。它上面如果有 @Transactional 注解，就能解析事务属性信息。
 		TransactionAttribute txAttr = findTransactionAttribute(specificMethod);
 		if (txAttr != null) {
 			return txAttr;
 		}
 
 		// Second try is the transaction attribute on the target class.
+		// 其次，检查目标类上有没有标 @Transactional 注解。
 		txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
 		if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
 			return txAttr;
@@ -172,17 +185,19 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 
 		if (specificMethod != method) {
 			// Fallback is to look at the original method.
+			// 接着，再检查接口中对应的方法有没有标 @Transactional 注解。
 			txAttr = findTransactionAttribute(method);
 			if (txAttr != null) {
 				return txAttr;
 			}
 			// Last fallback is the class of the original method.
+			// 最后，检查接口上有没有标 @Transactional  注解。
 			txAttr = findTransactionAttribute(method.getDeclaringClass());
 			if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
 				return txAttr;
 			}
 		}
-
+		// 如果都没有，那就返回 null。
 		return null;
 	}
 

@@ -245,10 +245,13 @@ public abstract class AopUtils {
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 
 		for (Class<?> clazz : classes) {
+			// 获取类中的全部方法。
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
+			// 遍历每一个方法。（看方法上是否有 @Transaction 注解或者类上有 @Transaction 注解）
 			for (Method method : methods) {
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
+						// 在这里判断的。
 						methodMatcher.matches(method, targetClass)) {
 					return true;
 				}
@@ -281,9 +284,12 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
+		// 判断引介增强是否与 targetClass 匹配。
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		// 在判断普通增强器是否与 targetClass 匹配。
+		// (事务的增强器在这里判断)
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
@@ -303,25 +309,35 @@ public abstract class AopUtils {
 	 * (may be the incoming List as-is)
 	 */
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
+		// 如果候选集是空的，直接返回。
 		if (candidateAdvisors.isEmpty()) {
 			return candidateAdvisors;
 		}
+		// 保存筛选出来的结果。
 		List<Advisor> eligibleAdvisors = new ArrayList<>();
+		// 遍历。
 		for (Advisor candidate : candidateAdvisors) {
+			 // 先判断引介类型的 advisor 能否使用在 clazz 上。
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
+				//  如果可以，保存。
 				eligibleAdvisors.add(candidate);
 			}
 		}
+		//
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
 		for (Advisor candidate : candidateAdvisors) {
+			// IntroductionAdvisor 类型的上面已经处理过了，所以这里跳过。
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;
 			}
+			//  在判断普通的 advisor 能否使用在 clazz 上。
 			if (canApply(candidate, clazz, hasIntroductions)) {
+				// 如果可以，保存。
 				eligibleAdvisors.add(candidate);
 			}
 		}
+		// 返回所有能使用在 clazz 上的的 advisor。
 		return eligibleAdvisors;
 	}
 

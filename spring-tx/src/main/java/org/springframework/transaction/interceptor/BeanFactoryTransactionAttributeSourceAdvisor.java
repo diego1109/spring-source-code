@@ -32,6 +32,15 @@ import org.springframework.lang.Nullable;
  * @see TransactionAttributeSourceAdvisor
  */
 @SuppressWarnings("serial")
+
+/**
+ * 	advisor 和 advice 的区别：
+ * 	advice 是通知，定义了在目标方法的什么时机"切"，和 "切"要执行的操作。
+ * 	pointCut 是切点，按照正则表达式规则，定义了"切"哪个方法。
+ *
+ * 	advisor：里面封装了 通知和切点。
+ *
+ */
 public class BeanFactoryTransactionAttributeSourceAdvisor extends AbstractBeanFactoryPointcutAdvisor {
 
 	@Nullable

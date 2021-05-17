@@ -2,6 +2,7 @@ package com.jdbctemplate.service;
 
 import com.jdbctemplate.domian.User;
 import com.jdbctemplate.domian.UserRepository;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +12,9 @@ public class UserService {
 
 	public UserRepository userRepository;
 
-	@Autowired
+	private String name = "demo1";
+
+//	@Autowired
 	private UserService userService;
 
 	@Autowired
@@ -19,9 +22,10 @@ public class UserService {
 		this.userRepository = userRepository;
 	}
 
+
 	public void test() throws Exception {
 		try{
-			userService.testTranscation();
+			((UserService)AopContext.currentProxy()).testTranscation();
 		}catch (RuntimeException e){
 			System.out.println(e.getMessage());
 		}
@@ -31,10 +35,10 @@ public class UserService {
 		restore("amos");
 	}
 
-	@Transactional
+	@Transactional()
 	public void testTranscation() throws Exception {
 		userRepository.updateUserMoney("diego",900);
-		int number = 8;
+		int number = 9;
 		if (number == 9){
 			throw new RuntimeException("出错啦！！！");
 		}

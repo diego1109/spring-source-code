@@ -34,12 +34,30 @@ import org.springframework.util.ObjectUtils;
  * @since 2.5.5
  */
 @SuppressWarnings("serial")
+// 找切入点，主要是判断类的方法上是否有 @Transactional 注解。
 abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
 	protected TransactionAttributeSourcePointcut() {
 		setClassFilter(new TransactionAttributeSourceClassFilter());
 	}
 
+	/**
+	 * 执行 AbstractFallbackTransactionAttributeSource#getTransactionAttribute()方法：
+	 * 1. 先看缓存中有没有 targetClass 的事物属性(TransactionAttribute)，如果有，直接返回事物属性。
+	 * 2. (如果上面没有) 能否从目标类的方法上解析出事物属性，
+	 * 3. (如果上面解析不出来) 能否从目标类上解析出事务属性，
+	 * 4. (如果上面解解析不出来) 能否从目标类的父接口中的对应方法中解析出事务属性，
+	 * 5. (如果上面解析不出来) 能否从目标类的父接口上解析出事务属性。
+	 *
+	 * 上面 2-5 中有任意一步能解析出事务属性，下面的步骤不再执行。并且将解析到的事物属性保存到缓存，最后返回。
+	 * PS1: 但凡被 @Transactional 注解标注了，且是 public 的，就能解析出事务属性。
+	 * PS2：@Transactional 注解的解析底层是调用
+	 * 		SpringTransactionAnnotationParser#parseTransactionAnnotation(AnnotatedElement element) 方法
+	 * 		实现的。
+	 * PS3: AnnotationTransactionAttributeSource 继承了 AbstractFallbackTransactionAttributeSource，所以
+	 * 		解析到的属性信息也保存在 AnnotationTransactionAttributeSource 的 attributeCache 属性中。
+	 *
+	 */
 
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
