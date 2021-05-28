@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class JdbcConfig {
 	
-	//  注入 dataSource
+	//  注入 dataSource，表示数据库是谁，相关信息。
 	@Bean
 	public DataSource mysqlDataSource(){
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -33,7 +33,7 @@ public class JdbcConfig {
 	}
 
 	// 如果要开启事物，还需要注入 dataSourceTransactionManager。
-	// 它执行事务的开始、提交、回滚等操作。
+	// 像个大管家一样，从整体上管理事务的处理过程。如：开始、提交、回滚等操作。
 	@Bean
 	public DataSourceTransactionManager dataSourceTransactionManager(){
 		return new DataSourceTransactionManager(mysqlDataSource());

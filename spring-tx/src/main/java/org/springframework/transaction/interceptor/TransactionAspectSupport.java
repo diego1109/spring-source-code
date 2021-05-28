@@ -333,7 +333,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// If the transaction attribute is null, the method is non-transactional.
 		// 如果没有 transactionAttribute, 当前方法就以非事务方式运行。
 		// 获取 TransactionAttributeSource，实际上的类型是 AnnotationTransactionAttributeSource，它里面有个字段专门保存transactionAttribute。
-		// 在事务的配置文件中，AnnotationTransactionAttributeSource 作为成员变量，注到了 TransactionIntercepter。
+		// 在事务的配置文件中，AnnotationTransactionAttributeSource 作为成员变量，注到了 TransactionInterceptor。
 		TransactionAttributeSource tas = getTransactionAttributeSource();
 		// 根据 targetClass 和 method 从 TransactionAttributeSource 中拿 TransactionAttribute。
 		// 如果缓存中有，就直接拿，如果缓存中没有，就解析。（这一点跟 getBean() 很像）。
@@ -367,7 +367,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// 则当前事务是声明式事务。
 		if (txAttr == null || !(ptm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
-			// 创建事务信息。（开启一个事务）
+			// 是否要为这个方法创建事务信息。（开启一个事务）
 			// 里面做了三件事情：
 			// (1) 确定事务的名字，保存到 transactionAttribute 中。
 			// (2) 从 transactionAttribute 获取事务的状态。
