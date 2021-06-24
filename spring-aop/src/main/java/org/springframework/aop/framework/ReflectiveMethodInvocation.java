@@ -163,7 +163,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			// 当遍历完所有拦截器后，执行目标方法。
 			return invokeJoinpoint();
 		}
-
+		// 根据索引拿出拦截器。
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
@@ -184,6 +184,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		else {
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
+			// 拦截器执行 invoke 方法。
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}

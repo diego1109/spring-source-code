@@ -83,7 +83,10 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	// 寻找并解析切面 bean。
 	public List<Advisor> buildAspectJAdvisors() {
 		// aspectBeansNames 中保存的是已经解析的切面的名称。
+		// 因为不止这一个地方有解析切面的代码，在doCreateBean() 方法之前也解析过切面。
+		// 并且将解析到的通知都缓存起来。并标记该切面已被解析，下次再要解析时直接从缓存中拿。
 		List<String> aspectNames = this.aspectBeanNames;
+		// aspectNames == null 说明这是第一次解析，那就要执行正真的解析流程了。
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
@@ -95,7 +98,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 					/**
 					 *  aop 功能在这里传入的是 Object 对象，表示从容器中获取所有组件的名称，然后遍历所有组件，
 					 *  这个遍历过程是非常消耗性能的，所以 Spring 在这个过程中加入了保存切面信息的缓存。但是事务
-					 *  功能不一样，事务模块的功能是直接去容器中回去 Advisor 类型的，选择范围小，且不消耗性能。
+					 *  功能不一样，事务模块的功能是直接去容器中获取 Advisor 类型的，选择范围小，且不消耗性能。
 					 *  所以 Spring 在事务模块中没有加入缓存来保存事务相关的 advisor。
 					 */
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
@@ -161,10 +164,14 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}
+		// 能走到这里，切面已经被解析了，通知已经被转换成 advisor 缓存起来了。
 		List<Advisor> advisors = new ArrayList<>();
+		// 遍历所有已解析的切面
 		for (String aspectName : aspectNames) {
+			// 获取每一个切面里的全部通知。
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);
 			if (cachedAdvisors != null) {
+				// 将缓存的通知添加到最终结果中，准备返回。
 				advisors.addAll(cachedAdvisors);
 			}
 			else {
@@ -172,6 +179,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 				advisors.addAll(this.advisorFactory.getAdvisors(factory));
 			}
 		}
+		// 返回最终结果。
 		return advisors;
 	}
 

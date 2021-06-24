@@ -183,7 +183,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			}
 
 			Object retVal;
-			// 暴露代理。把我们的代理对象暴露到线程中。
+			// 暴露代理。把我们的代理对象暴露到线程中。这个跟 ThreadLocal 有关。
 			if (this.advised.exposeProxy) {
 				// Make invocation available if necessary.
 				oldProxy = AopContext.setCurrentProxy(proxy);
@@ -219,7 +219,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// We need to create a method invocation...
 				// 如果拦截器不为空，就要织入了。所谓织入就是在执行目标方法的时候，将它的通知在恰当的地方一并执行。
 				// 先创建 MethodInvocation 对象，将所有需要的信息都封装在里面。
-				// (拦截链、目标方法、目标对象、目标对象的Class对象、入口参数、代理)
+				// (代理、目标对象、目标方法、方法参数、目标对象的Class对象 、拦截链)
 				MethodInvocation invocation =
 						new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
 				// Proceed to the joinpoint through the interceptor chain.
